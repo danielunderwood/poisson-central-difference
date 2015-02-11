@@ -3,8 +3,57 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{fourier}
 \author{Daniel Underwood}
-\title{Linear System Solution of Poisson Equation}
+\title{Linear System Solution of Poisson Equation on Dirichlet Boundary}
 \begin{document}
 \maketitle
+
+\section*{Introduction}
+The Dirichlet boundary value problem is a boundary value problem in which the function on the boundary is defined by a function; that is
+
+\begin{subequations}
+  \begin{align}
+  \hat{\mathcal{D}} u(x_1 , ... , x_n) = f(x_1 , ... , x_n) \,\, \text{for} \,\, (x_1, ..., x_n) \in \Omega & \label{eqn: dirichlet 1}\\
+  u(x_1, ..., x_n) = g(x_1, ..., x_n) \,\, \text{for} \,\, (x_1, ..., x_n) \in \partial\Omega \label{eqn: dirichlet 2}&
+  \end{align}
+\end{subequations}
+
+where $\hat{\mathcal{D}}$ is a linear differential operator consisting of a sum of derivatives of any order including mixed derivatives and $u$, $f$, and $g$ are functions of $n$ variables mapping from $\mathbb{R}^n$ to $\mathbb{R}$. The problem is solved on a domain $\Omega \subset \mathbb{R}^n$ with a boundary $\partial \Omega$. An additional constraint of the Dirichlet problem is that $u$ is a harmonic function.
+
+The Dirichlet problem is very useful in a variety of fields. Differential equations frequently used with Dirichlet boundary conditions include the  Laplace equation, Poisson equation, heat/diffusion, and wave equation. These equations are seen quite often and the latter three are actually all more general forms of the Laplace equation; the Poisson equation is a non-homogeneous form while the heat/diffusion and wave equations add first and second time derivative terms, respectively.
+
+The Laplace equation
+
+\begin{equation}
+\Delta u = 0 \label{eqn: laplace}
+\end{equation}
+
+is one of the most basic partial differential equations used with Dirichlet boundary conditions. The solutions to this equations are harmonic functions. The Laplace equation has uses in various fields of physics to describe potentials due to forces such as gravity, the electromagnetic force, and fluid forces. It it also the steady-state heat or diffusion equation, taking $u_t = 0$ in (\ref{eqn: diffusion}).
+
+The Poisson equation
+
+\begin{equation}
+\Delta u = f \label{eqn: poisson}
+\end{equation}
+
+Is the non-homogeneous form of (\ref{eqn: laplace}).
+
+The heat or diffusion equation...
+
+\begin{equation}
+u_t - a^2 \Delta u = 0 \label{eqn: diffusion}
+\end{equation}
+
+The wave equation ...
+
+\begin{equation}
+\Box u = 0
+\end{equation}
+
+\section*{Mathematical Theory}
+
+\section*{Computational Details}
+
+\section*{Conclusion}
 \end{document}

@@ -105,7 +105,5 @@ solutionMatrix = operatorMatrix \ transpose(rhsVector);
 [X, Y] = meshgrid(0:stepSize:size(domainMatrix, 2), ...
     0:stepSize:size(domainMatrix, 1));
 Z = griddata(meshPoints(:,1), meshPoints(:,2), solutionMatrix, X, Y);
-% TODO: Spy operator matrix
-% TODO: Fix domain step (maybe griddata?)
 end
 

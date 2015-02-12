@@ -1,3 +1,6 @@
-*
-!*.m
-!*.tex
+*.aux
+*.log
+*.dvi
+*.out
+*.pdf
+*.gz

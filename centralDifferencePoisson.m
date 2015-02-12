@@ -58,8 +58,8 @@ meshPoints = [];
 for row = expandedDomainRows:-1:2
     % Iterate through columns
     for col = 1:expandedDomainCols - 1
-        % Check if surrounding points are all 1. If so, top right square
-        % coordinates is a mesh point
+        % Check if top right square is 1. If so, this mesh point is given
+        % by the coordinates of that square scaled by the step size
         if expandedDomain(row, col) == 1 && ...
                 expandedDomain(row - 1, col + 1) == 1
             meshPointIndex = meshPointIndex + 1;
@@ -105,7 +105,6 @@ solutionMatrix = operatorMatrix \ transpose(rhsVector);
 [X, Y] = meshgrid(0:stepSize:size(domainMatrix, 2), ...
     0:stepSize:size(domainMatrix, 1));
 Z = griddata(meshPoints(:,1), meshPoints(:,2), solutionMatrix, X, Y);
-
 % TODO: Spy operator matrix
 % TODO: Fix domain step (maybe griddata?)
 end

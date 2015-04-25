@@ -44,66 +44,46 @@ end
 % unit mesh and the column of the square plus the corresponding column
 % of the unit mesh
 
-% Rows and columns of expandedDomain for easy access
-expandedDomainRows = size(expandedDomain, 1);
-expandedDomainCols = size(expandedDomain, 2);
-
-% Index of mesh point. Start at 0 since we have 0 mesh points at the
-% beginning
-meshPointIndex = 0;
-% Empty list for mesh points
-meshPoints = [];
-    
-% Iterate through rows backwards due to the way the matrices are indexed
-for row = expandedDomainRows:-1:2
-    % Iterate through columns
-    for col = 1:expandedDomainCols - 1
-        % Check if top right square is 1. If so, this mesh point is given
-        % by the coordinates of that square scaled by the step size
-        if expandedDomain(row, col) == 1 && ...
-                expandedDomain(row - 1, col + 1) == 1
-            meshPointIndex = meshPointIndex + 1;
-            meshPoints(meshPointIndex,1) = stepSize * col;
-            meshPoints(meshPointIndex,2) = ...
-                stepSize * (expandedDomainRows - row + 1);
-        end
-    end
-end
+% Get x and y points by finding nonzero elements
+[xPoints, yPoints] = find(expandedDomain);
 
 % Form operator matrix for equation
 % Start with fours on diagonals
-operatorMatrix = 4 * eye(meshPointIndex);
+operatorMatrix = 4 * eye(numel(xPoints));
 
-% Assign negative 1s to opperator matrix
-for row = 1:meshPointIndex
-    for col = 1:meshPointIndex
-        % Check if there are any adjacent points within range
-        if (meshPoints(row, 1) == meshPoints(col, 1) + stepSize ...
-                && meshPoints(row, 2) == meshPoints(col, 2)) || ...
-                (meshPoints(row, 1) == meshPoints(col, 1) - stepSize ...
-                && meshPoints(row, 2) == meshPoints(col, 2)) || ...
-                (meshPoints(row, 1) == meshPoints(col, 1) ...
-                && meshPoints(row, 2) == meshPoints(col, 2) + stepSize) || ...
-                (meshPoints(row, 1) == meshPoints(col, 1) ...
-                && meshPoints(row, 2) == meshPoints(col, 2) - stepSize)
-            operatorMatrix(row, col) = -1;
-        end
+% Check surrounding points and use -1 where necessary
+for i=1:numel(xPoints)
+    currentPoint = [xPoints(i), yPoints(i)];
+    
+    % Set up coordinates of surrounding points
+    pointAbove = [currentPoint(1) + 1, currentPoint(2)];
+    pointBelow = [currentPoint(1) - 1, currentPoint(2)];
+    pointLeft = [currentPoint(1), currentPoint(2) - 1];
+    pointRight = [currentPoint(1), currentPoint(2) + 1];
+    
+    % Vector of surrounding points for easy iteration
+    surroundingPoints = [pointAbove; pointBelow; pointLeft; pointRight];
+    
+    % Get single indices of surrounding points
+    for j=1:numel(surroundingPoints) / 2
+        idx = findPoint(xPoints, yPoints, [surroundingPoints(j, 1); surroundingPoints(j,2)]);
+        operatorMatrix(i, idx) = -1;
     end
 end
 
 % Create RHS vector
-rhsVector = [];
-for index = 1:meshPointIndex
-    rhsVector(index) = stepSize^2 * ...
-        rhs(meshPoints(index, 1) ,meshPoints(index, 2));
-end
+rhsVector = rhs(xPoints, yPoints);
 
 % Solve System
-solutionMatrix = operatorMatrix \ transpose(rhsVector);
+solutionMatrix = operatorMatrix \ rhsVector;
 
 % Coordinates for Return
-[X, Y] = meshgrid(0:stepSize:size(domainMatrix, 2), ...
-    0:stepSize:size(domainMatrix, 1));
-Z = griddata(meshPoints(:,1), meshPoints(:,2), solutionMatrix, X, Y);
+[X, Y] = meshgrid(stepSize:stepSize:size(domainMatrix, 2), ...
+    stepSize:stepSize:size(domainMatrix, 1));
+
+Z = expandedDomain;
+for i=1:numel(solutionMatrix)
+    Z(find(Z == 1, 1)) = solutionMatrix(i);
+end
 end
 

@@ -4,13 +4,17 @@ function [X, Y, Z] = centralDifferencePoisson(stepSize, domainMatrix, rhs)
 % matrix system of equations to solve.
 
 % Number of steps
-steps = 1 / stepSize;
+steps = round(1 / stepSize);
 
 % Expand domain using the kronecker tensor product
 expandedDomain = kron(domainMatrix, ones(steps));
 
 % Get x and y points by finding nonzero elements
-[xPoints, yPoints] = find(expandedDomain);
+[yPoints, xPoints] = find(expandedDomain);
+
+% Scale x and y points based on step size
+xPoints = stepSize * xPoints;
+yPoints = stepSize * yPoints;
 
 % Form operator matrix for equation
 % Start with fours on diagonals
@@ -21,10 +25,10 @@ for i=1:numel(xPoints)
     currentPoint = [xPoints(i), yPoints(i)];
     
     % Set up coordinates of surrounding points
-    pointAbove = [currentPoint(1) + 1, currentPoint(2)];
-    pointBelow = [currentPoint(1) - 1, currentPoint(2)];
-    pointLeft = [currentPoint(1), currentPoint(2) - 1];
-    pointRight = [currentPoint(1), currentPoint(2) + 1];
+    pointAbove = [currentPoint(1), currentPoint(2) + stepSize];
+    pointBelow = [currentPoint(1), currentPoint(2) - stepSize];
+    pointLeft = [currentPoint(1) - stepSize, currentPoint(2)];
+    pointRight = [currentPoint(1) + stepSize, currentPoint(2)];
     
     % Vector of surrounding points for easy iteration
     surroundingPoints = [pointAbove; pointBelow; pointLeft; pointRight];
@@ -37,7 +41,7 @@ for i=1:numel(xPoints)
 end
 
 % Create RHS vector
-rhsVector = stepSize^2 * rhs(xPoints, yPoints);
+rhsVector = stepSize.^2 * rhs(xPoints, yPoints);
 
 % Solve System
 solutionMatrix = operatorMatrix \ rhsVector;
@@ -49,5 +53,6 @@ solutionMatrix = operatorMatrix \ rhsVector;
 Z = expandedDomain;
 for i=1:numel(solutionMatrix)
     Z(find(Z == 1, 1)) = solutionMatrix(i);
+end
 end
 

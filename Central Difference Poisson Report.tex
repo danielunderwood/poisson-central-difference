@@ -3,11 +3,12 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
-\usepackage{fourier}
+\usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
 \usepackage{tikz}
 \usepackage{listings}
 \usepackage{float}
+\usepackage{fullpage}
 \author{Daniel Underwood}
 \title{Linear System Solution of Poisson Equation on Dirichlet Boundary}
 
@@ -38,6 +39,7 @@
     %emph=[2]{word1,word2}, emphstyle=[2]{style},    
 }
 
+
 \section*{Introduction}
 The Dirichlet boundary value problem is a boundary value problem in which the function on the boundary is defined by a function; that is
 
@@ -48,7 +50,7 @@ The Dirichlet boundary value problem is a boundary value problem in which the fu
   \end{align}
 \end{subequations}
 
-where $\hat{\mathcal{D}}$ is a linear differential operator consisting of a sum of derivatives of any order including mixed derivatives and $u$, $f$, and $g$ are functions of $n$ variables from $\mathbb{R}^n$ to $\mathbb{R}$. The problem is solved on a domain $\Omega \subset \mathbb{R}^n$ with a boundary $\partial \Omega$. An additional constraint of the Dirichlet problem is that $u$ is a harmonic function. In simpler terms, a Dirichlet problem is a boundary value problem in which the solution value is given in terms of a function, rather than other conditions such as the value of the solution's derivative on the boundary that is given in a Neumann problem.
+where $\hat{\mathcal{D}}$ is a linear differential operator consisting of a sum of derivatives of any order including mixed derivatives and $u$, $f$, and $g$ are functions of $n$ variables from $\mathbb{R}^n$ to $\mathbb{R}$. The problem is solved on a domain $\Omega \subset \mathbb{R}^n$ with a boundary $\partial \Omega$. In simpler terms, a Dirichlet problem is a boundary value problem in which the solution value is given in terms of a function, rather than other conditions such as the value of the solution's derivative on the boundary that is given in a Neumann problem.
 
 The Dirichlet problem is very useful in a variety of fields. Differential equations frequently used with Dirichlet boundary conditions include the  Laplace equation, Poisson equation, heat/diffusion, and wave equation. These equations are seen quite often and the latter three are actually all more general forms of the Laplace equation; the Poisson equation is a non-homogeneous form while the heat/diffusion and wave equations add first and second time derivative terms, respectively.
 
@@ -58,7 +60,7 @@ The Laplace equation
 \Delta u = 0 \label{eqn: laplace}
 \end{equation}
 
-is one of the most basic partial differential equations used with Dirichlet boundary conditions. The solutions to this equations are harmonic functions. The Laplace equation has uses in various fields of physics to describe potentials due to forces such as gravity, the electromagnetic force, and fluid forces. It it also the steady-state heat or diffusion equation as well as the steady-state wave equation by taking $u_t = 0$ in \cref{eqn: diffusion} or $u_{tt} = 0$ in the $\Box$ operator of \cref{eqn: wave}.
+is one of the most basic partial differential equations used with Dirichlet boundary conditions. The solutions to this equations are harmonic functions. The Laplace equation has uses in various fields of physics to describe potentials due to forces such as gravity, the electromagnetic force, and fluid forces. It it also the steady-state heat or diffusion equation as well as the steady-state wave equation by taking $u_t = 0$ in \cref{eqn: diffusion} or $u_{tt} = 0$ in the $\Box$ operator of \cref{eqn: wave}. The solutions of the Laplace equation are harmonic functions.
 
 The Poisson equation
 
@@ -140,18 +142,38 @@ This system can be solved by several different methods. To simplify the computat
 
  where $\tilde{\hat{A}} \equiv \left( \Delta h \right)^{-2} \hat{A}$. With this system defined by the operator in \cref{eqn: laplacian algebra}, we have an error of order $\left( \Delta h \right)^4$.
 
-\section*{Computational Details}
-To solve this problem numerically, MATLAB code was used. Relevant code is shown and the entire function used is attached.
+ \section*{Large Step Sizes}
 
-The first step to solving this problem numerically is to create the domain and split it into a mesh based on a step size, which is $\Delta h$ in \cref{eqn: laplacian algebra}. In the code, this was done by using a matrix to represent the unit squares of the domain. For example, the matrix that represents the domain of interest shown in \cref{fig: domain} is given by
+ 
+ The system in \cref{eqn: linear system 2} can be explicitly solved relatively easily for small step sizes. This was done for step sizes of $h=1$ and $h = \frac{1}{2}$ in listings \ref{lst: explicit1}--\ref{lst: explicit12}, respectively. In these cases, the operator matrices were manually assigned with values of $-1$ for interacting points.
+
+ \begin{figure}[H]
+	 \includegraphics[width=0.5\textwidth]{figures/explicit-h1.eps}
+	 \includegraphics[width=0.5\textwidth]{figures/explicit-h1-top.eps}
+	 \caption{Solution with $h=1$}
+	 \label{fig: explicit1plot}
+ \end{figure}
+
+ \begin{figure}[H]
+	 \includegraphics[width=0.5\textwidth]{figures/explicit-h12.eps}
+	 \includegraphics[width=0.5\textwidth]{figures/explicit-h12-top.eps}
+	 \caption{Solution with $h=\frac{1}{2}$}
+\label{fig: explicit12plot}
+ \end{figure}
+
+ \Crefrange{fig: explicit1plot}{fig: explicit12plot} respectively show the solutions with the explicitly solved values of $h$.
+
+\section*{Computational Details}
+To solve this problem numerically, MATLAB code was used. Relevant code is shown and the entire function used is attached in listing \ref{lst: centralDifferencePoisson}.
+
+The first step to solving this problem numerically is to create the domain and split it into a mesh based on a step size, which is $\Delta h$ in \cref{eqn: laplacian algebra}. In the code, this was done by using a matrix to represent the points inside the domain. For example, the matrix that represents the domain of interest shown in \cref{fig: domain} is given by
 
 \begin{displaymath}
 \left[
 \begin{matrix}
-1 & 1 & 0 & 0 & 0 \\
-1 & 1 & 1 & 0 & 0 \\
-1 & 1 & 1 & 1 & 1 \\
-1 & 1 & 1 & 1 & 1
+1 & 0 & 0 & 0 \\
+1 & 1 & 0 & 0 \\
+1 & 1 & 1 & 1 
 \end{matrix}
 \right]
 \end{displaymath}
@@ -163,60 +185,54 @@ When the domain is split up into smaller pieces, the unit squares of the domain 
 \begin{displaymath}
 \left[
 \begin{matrix}
-1 & 1 & 0 & 0 & 0 \\
-1 & 1 & 1 & 0 & 0 \\
-1 & 1 & 1 & 1 & 1 \\
-1 & 1 & 1 & 1 & 1
+1 & 0 & 0 & 0 \\
+1 & 1 & 0 & 0 \\
+1 & 1 & 1 & 1 
 \end{matrix}
 \right]
 \to
 \left[
 \begin{matrix}
-1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
-1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
-1 & 1 & 1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
-1 & 1 & 1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
-1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1
+	1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0\\
+	1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0\\
+	1 & 1 & 1 & 1 & 1 & 0 & 0 & 0 & 0\\
+	1 & 1 & 1 & 1 & 1 & 0 & 0 & 0 & 0\\
+	1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+	1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+	1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1
 \end{matrix}
 \right]
 \end{displaymath}
 
-For this reason, we must choose $\Delta h \leq 1$, although it is already known that a smaller $\Delta h$ yields better results. This expansion of matrices is handled by several nested loops and conditional statements in the MATLAB code
-
-\lstinputlisting[language=Matlab, firstline=17, lastline=37, firstnumber=17]{centralDifferencePoisson.m}
-
-While loops and conditional statements are a cornerstone of many numerical methods, there is a likelihood that this code could be modified to perform fewer iterations for greater performance.
-
-The next step in the process of solving the equations is to form a list of mesh points in the domain since what we have only represents unit squares within the domain. The mesh points of the domain are given by the intersection of four squares. Therefore, the mesh points could be found by searching for every $2 \times 2$ matrix in the domain matrix such that all the elements are $1$. However, it may also be calculated for this domain by checking the element to the upper right corner of the current element and making sure each is $1$. This is done in the code by a simple conditional at each element of the matrix
-
-\lstinputlisting[language=Matlab, firstline=58, lastline=71, firstnumber=58]{centralDifferencePoisson.m}
-
-The coordinates of the mesh point are given by the location of the element of the unit square to the top right of the mesh point scaled by $\Delta h$. Shifting of the index is done in the code as the matrices are indexed starting at $(1,1)$ and our domain starts at $(0,0)$. The row of the mesh point in the matrix created by this code corresponds to the row of the solution value in $\vec{u}$ for that mesh point.
-
-The next step is to create the operator matrix $\tilde{\hat{A}}$. Due to the $4u_{ij}$ term in \cref{eqn: laplacian algebra}, it is known that the diagonals of $\tilde{\hat{A}}$ are 4, so an identity matrix is created and multiplied by $4$. For the rest of the elements of the matrix, the matrix-vector multiplication must be checked for mesh points adjacent to the current element. This is done in the code with a long conditional statement at each mesh point
-
+For this reason, we must choose $\Delta h \leq 1$, although it is already known that a smaller $\Delta h$ yields better results. This expansion of matrices is handled by using a kronecker product to expand the rows and columns by the step size followed by adding a row and column for the missing points, as the first expanded row and column will have an extra for each step.
 \pagebreak
-\lstinputlisting[language=Matlab, firstline=78, lastline=92, firstnumber=78]{centralDifferencePoisson.m}
+\lstinputlisting[language=Matlab, firstline=9, lastline=22, firstnumber=9]{centralDifferencePoisson.m}
 
-This is another area of the code that requires many calls and evaluations of conditional statements. It is expected that significant performance improvements could be made here.
+This section of the code is very fast, even on quite large matrices. It would likely have greater performance if the \lstinline[language=Matlab]|for| loops were changed to \lstinline[language=Matlab]|parfor| loops, although memory and performance limitations cause issues with solving \cref{eqn: linear system 2} much more quickly than the formation of the matrices in the above code.
 
-The interior structure of the matrix can be seen using MATLAB's spy command and is found to be what is shown in \cref{fig: operator matrix}. From this, it seems that the matrix is quite sparse and nearing the form of an identity matrix, resulting in a very simple system to solve.
+The next step is to create the operator matrix $\tilde{\hat{A}}$. Due to the $4u_{ij}$ term in \cref{eqn: laplacian algebra}, it is known that the diagonals of $\tilde{\hat{A}}$ are 4, so an identity matrix is created and multiplied by $4$. The interacting points are found by finding points in the expanded domain with MATLAB's \lstinline[language=Matlab]|find| function and inspecting the points above, below, left, and right, of the current point. This is the slowest portion of the code other than solving the system. As with the expansion of the domain, the performance of this code could be increased by using more parallel code, but solving the system is a much more pressing performance issue.
+
+\lstinputlisting[language=Matlab, firstline=24, lastline=53, firstnumber=24]{centralDifferencePoisson.m}
+
+
+The interior structure of the matrix can be seen using MATLAB's spy command and is found to be what is shown in \cref{fig: operator matrix}. From this, it is clear that the matrix is sparse; that is, most of its elements are 0. While care was not taken to optimize the code due to the sparseness of the matrix, some performance improvements can be made. MATLAB already uses algorithms based on the structure of the array for the backslash operator, but iterative processes could also be used to make the computation more parallel and thus faster. There are also techniques to use less memory to store sparse matrices by primarily only storing nonzero elements.
 
 \begin{figure}[H]
 \center
-\includegraphics[scale=0.5]{figures/operator-spy.png}
+\includegraphics[scale=0.3]{figures/operator-spy.eps}
 \caption{Operator Matrix Structure}
 \label{fig: operator matrix}
 \end{figure}
 
-The final step before solving the linear system with MATLAB's built-in functions is to form the right-hand side of \cref{eqn: linear system 2}. This is simply done by evaluating $f(x,y)$ at each of the mesh points and put the results in an array and multiply that array by $\left( \Delta h \right)^2$. This is done in the code by a very simple loop
+The final step before solving the linear system with MATLAB's built-in functions is to form the right-hand side of \cref{eqn: linear system 2}. This is simply done by evaluating $f(x,y)$ at each of the  points in the domain and put the results in an array and multiply that array by $\left( \Delta h \right)^2$. This is done in the code by a vector operation
 
-\lstinputlisting[language=Matlab, firstline=96, lastline=99, firstnumber=96]{centralDifferencePoisson.m}
+\lstinputlisting[language=Matlab, firstline=55, lastline=56, firstnumber=55]{centralDifferencePoisson.m}
 
 Now, the linear system is ready to be solved using built-in functions.
+
+\lstinputlisting[language=Matlab, firstline=58, lastline=73, firstnumber=55]{centralDifferencePoisson.m}
+
+In addition to solving the system,  the code snippet above finds points that are out of the domain and removes them from the variables for the $x$ and $y$ points so the domain is plotted properly.
 
 \section*{Conclusion}
 
@@ -229,36 +245,30 @@ f(x, y) =& x \left( x - y \right)^3 \label{eqn: cubic}
 \end{align}
 \end{subequations}
 
-with $\Delta h = \frac{1}{32}$. The solution plots were then compared with the solutions found by MATLAB's PDE toolbox. These plots are shown in \crefrange{fig: gaussian solutions}{fig: pdetool cubic solutions} on the following pages. The plots in \cref{fig: steps} show the effect of step sizes of $1, 2, 4, 8$ and the rapid approach to the expected solution.
+with $\Delta h = \frac{1}{64}$. The solution plots were then compared with the solutions found by MATLAB's PDE toolbox. These plots are shown in \crefrange{fig: gaussian solutions}{fig: pdetool cubic solutions} on the following pages. The plots in \cref{fig: steps} show the effect of step sizes of $1, 2, 4, 8$ and the rapid approach to the expected solution.
 
-In both of these cases, it is seen that both MATLAB's PDE toolbox and the code presented in this report found similar solutions with two visible differences -- domain and boundary values.
 
-The difference in the domains is that the PDE toolbox plots the boundary used as an input while the code presented here interpolates the steps at the edge of the boundary. This is due to the way MATLAB requires a matrix to plot a surface and the conversion of coordinate vectors to matrices as done in the code
 
-\lstinputlisting[language=Matlab, firstline=105, lastline=107, firstnumber=105]{centralDifferencePoisson.m}
+Overall, this method generates very good results with the differential equation and boundary in this case. Due to the flexible nature of how the domain was implemented, it is expected that this method would work for many other domains. Compared to MATLAB's PDE toolbox, the results are slightly worse although the code is likely much simpler. This method takes a similar amount of time to MATLAB's PDE toolbox to run, which is a good sign. The performance could likely be improved by creating more parallel code and carefully profiling the code.
 
-It can be seen  at the wrapping near the first step that the equation was solved on the correct domain and the only difference is the extra plotted area.
-
-The second issue is the boundary conditions around $(0, 0)$. In the toolbox solutions, they are fixed as they should be, but  differ slightly in the solutions generated by the presented code; this discrepancy decreases as the step size is taken to be smaller.
-
-Overall, this method generates very good results with the differential equation and boundary in this case. Due to the flexible nature of how the domain was implemented, it is expected that this method would work for many other domains. Compared to MATLAB's PDE toolbox, the results are slightly worse although the code is likely much simpler. This method also requires more time to run than the solver used in the toolbox. This could likely be improved by carefully profiling the code and adding threading support.
+An additional approvement could be made in the representation of the domain. Although the matrix representation of domain points works very well and allows for features such as holes in the domain, it is not easily tested and new bugs may be found when a different domain is used. An improvement to this would be a more advanced system of using a graph data structure to represent the domain. In this system, the nodes would represent points in space. These points could be inside or outside of the domain or be on the boundary of the domain. The edges in the graph would be used to split points to subdivide the points. This would allow the domain to no longer be restricted to rectangles or two dimensions; however, this increase in generality would also require the derivation of a more general operator matrix.
 
 
 \pagebreak
 \subsection*{Solution Plots}
 
 \begin{figure}[H]
-\includegraphics[width=\linewidth]{figures/gaussian-h1.png}
-\includegraphics[width=\linewidth]{figures/gaussian-h2.png}
-\includegraphics[width=\linewidth]{figures/gaussian-h4.png}
-\includegraphics[width=\linewidth]{figures/gaussian-h8.png}
-\caption{Solutions to \Cref{eqn: gaussian} with $\Delta h = 1, 2, 4, 8$}
+\includegraphics[width=0.5\linewidth]{figures/cubic-1.eps}
+\includegraphics[width=0.5\linewidth]{figures/cubic-2.eps}
+\includegraphics[width=0.5\linewidth]{figures/cubic-4.eps}
+\includegraphics[width=0.5\linewidth]{figures/cubic-8.eps}
+\caption{Solutions to \Cref{eqn: cubic} with $\Delta h = 1, 2, 4, 8$}
 \label{fig: steps}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[width=\linewidth]{figures/gaussian-top.png}
-\includegraphics[width=\linewidth]{figures/gaussian-iso.png}
+\includegraphics[width=\linewidth]{figures/gaussian-64-top.eps}
+\includegraphics[width=\linewidth]{figures/gaussian-64.eps}
 \caption{Solutions to \Cref{eqn: gaussian}}
 \label{fig: gaussian solutions}
 \end{figure}
@@ -271,8 +281,8 @@ Overall, this method generates very good results with the differential equation 
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[width=\linewidth]{figures/cubic-top.png}
-\includegraphics[width=\linewidth]{figures/cubic-iso.png}
+\includegraphics[width=\linewidth]{figures/cubic-64-top.eps}
+\includegraphics[width=\linewidth]{figures/cubic-64.eps}
 \caption{Solutions to \Cref{eqn: cubic}}
 \label{fig: cubic solutions}
 \end{figure}
@@ -286,5 +296,12 @@ Overall, this method generates very good results with the differential equation 
 
 \newpage
 \section*{Full Code Listing}
-\lstinputlisting[language=Matlab]{centralDifferencePoisson.m}
+
+Below is a listing of the code used for this report. The most recent code is available in the source repository at \url{https://github.com/danielunderwood/poisson-central-difference} and the most recent compiled version of the report is available at \url{https://www.sharelatex.com/github/repos/danielunderwood/poisson-central-difference/builds/latest/output.pdf}.
+
+\lstinputlisting[language=Matlab, caption=explicit\_h1\_solver.m, label={lst: explicit1}]{explicit_h1_solver.m}
+\lstinputlisting[language=Matlab, caption=explicit\_h12\_solver.m, label={lst: explicit12}]{explicit_h12_solver.m}
+\lstinputlisting[language=Matlab, caption=centralDifferencePoisson.m, label={lst: centralDifferencePoisson}]{centralDifferencePoisson.m}
+
+
 \end{document}

@@ -6,7 +6,7 @@ function [X, Y, Z] = centralDifferencePoisson(stepSize, domainMatrix, rhs)
 % Number of steps
 steps = round(1 / stepSize);
 
-% Expand domain using the kronecker tensor product
+% Expand domain using the kronecker product
 expandedDomain = kron(domainMatrix, ones(steps));
 
 % Fix x axis missing expanded values and boundaries

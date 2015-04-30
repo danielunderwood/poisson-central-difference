@@ -215,7 +215,7 @@ The next step is to create the operator matrix $\tilde{\hat{A}}$. Due to the $4u
 \lstinputlisting[language=Matlab, firstline=24, lastline=53, firstnumber=24]{centralDifferencePoisson.m}
 
 
-The interior structure of the matrix can be seen using MATLAB's spy command and is found to be what is shown in \cref{fig: operator matrix}. From this, it is clear that the matrix is sparse; that is, most of its elements are 0. While care was not taken to optimize the code due to the sparseness of the matrix, some performance improvements can be made. MATLAB already uses algorithms based on the structure of the array for the backslash operator, but iterative processes could also be used to make the computation more parallel and thus faster. There are also techniques to use less memory to store sparse matrices by primarily only storing nonzero elements.
+The interior structure of the matrix can be seen using MATLAB's spy command and is found to be what is shown in \cref{fig: operator matrix}. From this, it is clear that the matrix is sparse; that is, most of its elements are 0. This allows an optimization in MATLAB by using a sparse matrix. Using a sparse matrix to represent the operator matrix  for a step size of $h = \frac{1}{128}$ reduced memory usage from $~450$GB to $~400$MB -- roughly a difference of three orders of magnitude! This allows nearly any machine to compute solutions for small step sizes, although processing time can be significant.
 
 \begin{figure}[H]
 \center

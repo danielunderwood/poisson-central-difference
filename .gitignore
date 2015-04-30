@@ -6,3 +6,5 @@
 *.gz
 *~
 *.swp
+*.fls
+*latexmk

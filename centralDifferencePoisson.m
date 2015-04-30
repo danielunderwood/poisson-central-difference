@@ -30,7 +30,8 @@ yPoints = stepSize * yPoints;
 
 % Form operator matrix for equation
 % Start with fours on diagonals
-operatorMatrix = 4 * eye(numel(xPoints));
+operatorMatrix = sparse(1:numel(xPoints), 1:numel(xPoints), ...
+    4 * ones(numel(xPoints), 1));
 
 % Check surrounding points and use -1 where necessary
 for i=1:numel(xPoints)

@@ -2,7 +2,6 @@
 *.log
 *.dvi
 *.out
-*.pdf
 *.gz
 *~
 *.swp
